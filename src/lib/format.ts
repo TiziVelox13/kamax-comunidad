@@ -1,7 +1,15 @@
+const TZ = "America/Argentina/Cordoba";
+
 export const hoyLargo = () =>
-  new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long" })
+  new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone: TZ })
     .format(new Date())
     .replace(/^\w/, (c) => c.toUpperCase());
+
+/** Fecha YYYY-MM-DD del día actual EN CÓRDOBA (independiente del reloj del dispositivo/servidor) */
+export const hoyCordoba = () => {
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+  return p.format(new Date());
+};
 
 export const horaCorta = (iso: string) =>
   new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
@@ -31,14 +39,15 @@ export const STAGES: { id: string; label: string; emoji: string }[] = [
 ];
 export const stageInfo = (id: string) => STAGES.find((s) => s.id === id) ?? STAGES[0];
 
-/** Racha: días consecutivos hasta hoy */
+/** Racha: días consecutivos hasta hoy (calendario de Córdoba) */
 export const calcRacha = (days: string[]) => {
   const set = new Set(days);
   let racha = 0;
-  const d = new Date();
+  const [y, m, d0] = hoyCordoba().split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1, d0));
   for (;;) {
     const key = d.toISOString().slice(0, 10);
-    if (set.has(key)) { racha++; d.setDate(d.getDate() - 1); }
+    if (set.has(key)) { racha++; d.setUTCDate(d.getUTCDate() - 1); }
     else break;
   }
   return racha;

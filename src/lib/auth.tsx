@@ -47,12 +47,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Racha: registrar actividad del día
+  // Racha: registrar actividad del día (calendario de Córdoba, no UTC)
   useEffect(() => {
     if (!session) return;
-    supabase.from("daily_activity")
-      .upsert({ user_id: session.user.id }, { onConflict: "user_id,day", ignoreDuplicates: true })
-      .then(() => {});
+    import("./format").then(({ hoyCordoba }) => {
+      supabase.from("daily_activity")
+        .upsert({ user_id: session.user.id, day: hoyCordoba() }, { onConflict: "user_id,day", ignoreDuplicates: true })
+        .then(() => {});
+    });
   }, [session?.user.id]);
 
   return (

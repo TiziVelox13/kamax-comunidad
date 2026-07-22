@@ -53,7 +53,7 @@ export default function Guia() {
           {SECCIONES[actual.section]?.emoji} {SECCIONES[actual.section]?.titulo}
         </span>
         <h1 className="display" style={{ fontSize: 32, margin: "4px 0 10px" }}>{actual.title}</h1>
-        <div style={{ fontSize: 17, lineHeight: 1.55 }}
+        <div className="articulo" style={{ fontSize: 17, lineHeight: 1.55 }}
           dangerouslySetInnerHTML={{ __html: marked.parse(actual.body_md) as string }} />
         {actual.copy_blocks?.length > 0 && (
           <>
