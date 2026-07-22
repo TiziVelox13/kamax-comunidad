@@ -39,10 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await loadProfile(data.session);
       setLoading(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_ev, s) => {
+    // OJO: no hacer awaits de supabase DENTRO del callback (deadlock conocido
+    // de supabase-js v2) — se despacha fuera del lock con setTimeout(0).
+    const { data: sub } = supabase.auth.onAuthStateChange((_ev, s) => {
       setSession(s);
-      await loadProfile(s);
-      setLoading(false);
+      setTimeout(() => {
+        loadProfile(s).finally(() => setLoading(false));
+      }, 0);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -64,7 +67,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         isStaff: !!profile && ["admin", "lider"].includes(profile.role),
-        refreshProfile: () => loadProfile(session),
+        refreshProfile: async () => {
+          // session fresca (evita el closure stale justo después de un signIn)
+          const { data } = await supabase.auth.getSession();
+          setSession(data.session);
+          await loadProfile(data.session);
+        },
         signOut: async () => { await supabase.auth.signOut(); },
       }}
     >
