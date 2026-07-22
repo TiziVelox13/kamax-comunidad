@@ -37,12 +37,16 @@ const TABS = [
   { path: "/clientes", label: "Clientes", icon: I.clientes },
 ];
 
-export function TabBar({ chatBadge = 0 }: { chatBadge?: number }) {
+export function TabBar({ chatBadge = 0, soloDesktop = false }: { chatBadge?: number; soloDesktop?: boolean }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const activa = (p: string) => (p === "/" ? pathname === "/" : pathname.startsWith(p));
   return (
-    <nav className="tabbar" aria-label="Navegación principal">
+    <nav className={`tabbar ${soloDesktop ? "solo-desktop" : ""}`} aria-label="Navegación principal">
+      <div className="tab-logo" aria-hidden>
+        <img src="/img/logo-kamax.png" alt="" style={{ height: 22 }} />
+        <span>Comunidad</span>
+      </div>
       {TABS.map((t) => (
         <button key={t.path} className={`tab ${activa(t.path) ? "activa" : ""}`} onClick={() => nav(t.path)}>
           {t.icon}

@@ -97,7 +97,7 @@ export default function Placas() {
         <Vacio emoji="🖼️" titulo="Todavía no hay placas acá"
           detalle="Apenas el equipo suba contenido nuevo, te va a llegar el aviso." />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="grilla-placas">
           {lista.map((a) => (
             <button key={a.id} onClick={() => setSel(a)}
               style={{ border: "1px solid var(--color-line)", borderRadius: 12, overflow: "hidden", background: "var(--color-surface)", cursor: "pointer", padding: 0, textAlign: "left" }}>

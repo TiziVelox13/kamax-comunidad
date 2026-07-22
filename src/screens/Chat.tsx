@@ -15,8 +15,24 @@ export default function Chat() {
   useEffect(() => {
     (async () => {
       if (!profile) return;
-      const { data } = await supabase.from("channels").select("*").order("kind");
-      const cs = (data as Canal[]) ?? [];
+      let { data } = await supabase.from("channels").select("*").order("kind");
+      let cs = (data as Canal[]) ?? [];
+
+      // Garantía estructural: todo no-líder tiene su 1:1 con la líder activa.
+      // (Cubre cuentas creadas antes de que existiera la líder, o líderes nuevas.)
+      if (profile.role !== "lider") {
+        const tieneDM = cs.some((c) => c.kind === "dm" && (c.member_a === profile.id || c.member_b === profile.id));
+        if (!tieneDM) {
+          const { data: lider } = await supabase.from("profiles")
+            .select("id").eq("role", "lider").eq("active", true).limit(1).maybeSingle();
+          if (lider) {
+            await supabase.from("channels").insert({ kind: "dm", member_a: profile.id, member_b: lider.id });
+            const { data: d2 } = await supabase.from("channels").select("*").order("kind");
+            cs = (d2 as Canal[]) ?? cs;
+          }
+        }
+      }
+
       setCanales(cs);
       const ids = Array.from(new Set(cs.flatMap((c) => [c.member_a, c.member_b]).filter(Boolean))) as string[];
       if (ids.length) {

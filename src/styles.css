@@ -292,6 +292,80 @@ button, input, textarea, select { font-family: var(--font-body); font-size: 17px
   flex-shrink: 0;
 }
 
+/* Logo del sidebar (solo escritorio) */
+.tab-logo { display: none; }
+
+/* En el celu, el tab bar se oculta dentro de chats/asistente */
+.tabbar.solo-desktop { display: none; }
+@media (min-width: 900px) {
+  .tabbar.solo-desktop { display: flex; }
+}
+
+/* Grilla de placas: 2 columnas en el celu, crece en pantallas grandes */
+.grilla-placas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ============================================================
+   ESCRITORIO (≥900px): el tab bar se vuelve sidebar de cuaderno
+   ============================================================ */
+@media (min-width: 900px) {
+  /* El espacio del sidebar lo reserva el body SOLO cuando hay navegación */
+  body:has(.tabbar) { padding-left: 232px; }
+
+  .tabbar {
+    top: 0; bottom: 0; left: 0; right: auto;
+    width: 232px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    border-top: none;
+    border-right: 1px solid var(--color-line);
+    padding: 18px 14px 20px;
+    background: var(--color-surface);
+  }
+  .tab-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px 22px;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 19px; text-transform: uppercase;
+    color: var(--color-birome);
+    border-bottom: 1px solid var(--color-line);
+    margin-bottom: 14px;
+  }
+  .tab {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 13px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: background 0.15s var(--ease-out-quint), color 0.15s;
+  }
+  .tab:hover { background: var(--color-paper-deep); color: var(--color-ink); }
+  .tab.activa { background: var(--color-paper-deep); }
+  .tab.activa::after { display: none; }
+  .tab svg { width: 23px; height: 23px; }
+  .tab .badge-rojo { position: static !important; margin-left: auto; }
+
+  /* Contenido: centrado en el área restante, más aire */
+  .pantalla { max-width: 760px; padding: 0 40px 80px; }
+  .pantalla-plena { max-width: 620px; padding: 0 40px 40px; }
+  .pantalla-chat { max-width: 760px !important; }
+
+  /* Placas en 3 columnas */
+  .grilla-placas { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+
+  /* Afinado de hover para filas de índice y ledger */
+  .indice-row { transition: background 0.15s; border-radius: 8px; padding: 0 10px; }
+  .indice-row:hover { background: var(--color-paper-deep); }
+  .btn { transition: transform 0.12s var(--ease-out-quint), opacity 0.12s, filter 0.15s; }
+  .btn:hover { filter: brightness(1.06); }
+  .btn-borde:hover, .btn-fantasma:hover { filter: none; background: var(--color-paper-deep); }
+
+  /* El tutorial centrado más chico en pantalla grande */
+  .tuto-hoja { max-width: 440px; }
+}
+
 /* ---------- Sheet: sube como una hoja ---------- */
 .sheet-panel { animation: sheet-sube 0.3s var(--ease-out-quint) both; }
 @keyframes sheet-sube { from { transform: translateY(28px); opacity: 0.4; } to { transform: none; opacity: 1; } }

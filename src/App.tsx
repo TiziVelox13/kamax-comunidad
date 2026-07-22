@@ -37,7 +37,11 @@ export default function App() {
     );
   }
 
-  const conTabs = session && profile?.active && !publica && !pathname.startsWith("/chat/") && pathname !== "/asistente";
+  const logueado = session && profile?.active && !publica;
+  // En el celu, las pantallas de conversación van limpias (sin tab bar);
+  // en escritorio el sidebar es navegación permanente y queda siempre.
+  const soloDesktop = pathname.startsWith("/chat/") || pathname === "/asistente";
+  const conTabs = logueado;
 
   return (
     <>
@@ -59,7 +63,7 @@ export default function App() {
         <Route path="/equipo/guia" element={<AdminKB />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {conTabs && <TabBar />}
+      {conTabs && <TabBar soloDesktop={soloDesktop} />}
     </>
   );
 }
