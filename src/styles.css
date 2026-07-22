@@ -379,26 +379,29 @@ button, input, textarea, select { font-family: var(--font-body); font-size: 17px
 .tuto-fondo {
   position: fixed; inset: 0; z-index: 80;
   background: oklch(17.8% 0.032 260 / 0.55);
-  display: flex;
-  /* flex-start + margin:auto en la hoja = centrada cuando entra,
-     scrolleable desde arriba cuando la pantalla es más baja que la hoja */
-  align-items: flex-start;
-  justify-content: center;
+  /* SIN flex: flujo normal = scroll garantizado en todos los navegadores.
+     (flex/grid centrado + desborde deja el tope inalcanzable en móviles) */
+  display: block;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+  padding: max(14px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
   animation: fundido 0.25s ease-out both;
 }
 .tuto-hoja {
   background: var(--color-paper);
   border-radius: 16px;
   width: 100%; max-width: 400px;
-  margin: auto;
+  margin: 10px auto 0;
   padding: 22px 20px 16px;
   box-shadow: 0 18px 50px oklch(17.8% 0.032 260 / 0.35);
   animation: hoja-gira 0.4s var(--ease-out-quint) both;
   position: relative;
   overflow: hidden;
+}
+/* En pantallas altas, la hoja respira más abajo (casi centrada) */
+@media (min-height: 760px) {
+  .tuto-hoja { margin-top: max(10px, calc((100vh - 640px) / 2)); }
 }
 @keyframes hoja-gira {
   from { opacity: 0; transform: translateY(22px) rotate(-1.2deg) scale(0.97); }

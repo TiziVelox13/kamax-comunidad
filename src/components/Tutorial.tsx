@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../lib/auth";
 
 export const TUTORIAL_KEY = "kamax_tutorial_v1";
@@ -50,6 +50,10 @@ const MiniSello = () => (
 export function Tutorial({ onCerrar }: { onCerrar: () => void }) {
   const { profile, isStaff } = useAuth();
   const [i, setI] = useState(0);
+  const fondoRef = useRef<HTMLDivElement>(null);
+
+  // Al cambiar de paso, el overlay vuelve arriba (por si el paso anterior scrolleó)
+  useEffect(() => { fondoRef.current?.scrollTo({ top: 0 }); }, [i]);
 
   const pasos = useMemo<Paso[]>(() => {
     const base: Paso[] = [
@@ -126,7 +130,7 @@ export function Tutorial({ onCerrar }: { onCerrar: () => void }) {
   const ultimo = i === pasos.length - 1;
 
   return (
-    <div className="tuto-fondo" role="dialog" aria-modal="true" aria-label="Tutorial de la Comunidad">
+    <div ref={fondoRef} className="tuto-fondo" role="dialog" aria-modal="true" aria-label="Tutorial de la Comunidad">
       <div className="tuto-hoja" key={i}>
         <span className="tuto-emoji" style={{ fontSize: 46 }} aria-hidden>{paso.emoji}</span>
         <h2 className="display" style={{ fontSize: 26, textAlign: "center", margin: "10px 0 6px", color: "var(--color-birome)" }}>
