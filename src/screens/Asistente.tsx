@@ -19,7 +19,27 @@ export default function Asistente() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [texto, setTexto] = useState("");
   const [pensando, setPensando] = useState(false);
+  const [confirmaReset, setConfirmaReset] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const resetTimer = useRef<number>();
+
+  const reiniciar = async () => {
+    if (!profile) return;
+    // Primer toque: pide confirmación (3 segundos); segundo toque: borra
+    if (!confirmaReset) {
+      setConfirmaReset(true);
+      window.clearTimeout(resetTimer.current);
+      resetTimer.current = window.setTimeout(() => setConfirmaReset(false), 3000);
+      return;
+    }
+    window.clearTimeout(resetTimer.current);
+    setConfirmaReset(false);
+    const { error } = await supabase.from("assistant_messages").delete().eq("user_id", profile.id);
+    if (error) { toast("No se pudo reiniciar. Probá de nuevo."); return; }
+    setMsgs([]);
+    setTexto("");
+    toast("Conversación reiniciada ↺ Empezamos de cero");
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -54,10 +74,21 @@ export default function Asistente() {
     <div className="pantalla-chat" style={{ display: "flex", flexDirection: "column", height: "100dvh", maxWidth: 560, margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: "1px solid var(--color-line)" }}>
         <button className="btn btn-fantasma" style={{ minHeight: 40, padding: "0 6px", fontSize: 24 }} onClick={() => nav("/")} aria-label="Volver">←</button>
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Asistente 🤖</h1>
           <span style={{ fontSize: 14, color: "var(--color-ink-soft)" }}>Tu compañero de ventas, 24 hs</span>
         </div>
+        {msgs.length > 0 && (
+          <button
+            className={`btn ${confirmaReset ? "btn-rojo" : "btn-borde"}`}
+            style={{ minHeight: 42, fontSize: confirmaReset ? 14.5 : 19, padding: "0 12px", whiteSpace: "nowrap" }}
+            onClick={reiniciar}
+            aria-label="Reiniciar la conversación"
+            title="Reiniciar la conversación"
+          >
+            {confirmaReset ? "¿Borrar todo?" : "↺"}
+          </button>
+        )}
       </header>
 
       <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
