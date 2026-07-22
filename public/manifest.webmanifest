@@ -1,0 +1,15 @@
+{
+  "name": "Comunidad KAMAX",
+  "short_name": "KAMAX",
+  "description": "La herramienta del equipo de vendedores KAMAX",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0E3580",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
