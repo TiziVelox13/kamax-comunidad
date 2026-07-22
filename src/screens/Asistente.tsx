@@ -29,7 +29,7 @@ export default function Asistente() {
     if (!confirmaReset) {
       setConfirmaReset(true);
       window.clearTimeout(resetTimer.current);
-      resetTimer.current = window.setTimeout(() => setConfirmaReset(false), 3000);
+      resetTimer.current = window.setTimeout(() => setConfirmaReset(false), 5000);
       return;
     }
     window.clearTimeout(resetTimer.current);
