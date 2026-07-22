@@ -379,15 +379,22 @@ button, input, textarea, select { font-family: var(--font-body); font-size: 17px
 .tuto-fondo {
   position: fixed; inset: 0; z-index: 80;
   background: oklch(17.8% 0.032 260 / 0.55);
-  display: flex; align-items: center; justify-content: center;
-  padding: 22px;
+  display: flex;
+  /* flex-start + margin:auto en la hoja = centrada cuando entra,
+     scrolleable desde arriba cuando la pantalla es más baja que la hoja */
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   animation: fundido 0.25s ease-out both;
 }
 .tuto-hoja {
   background: var(--color-paper);
   border-radius: 16px;
   width: 100%; max-width: 400px;
-  padding: 26px 22px calc(18px);
+  margin: auto;
+  padding: 22px 20px 16px;
   box-shadow: 0 18px 50px oklch(17.8% 0.032 260 / 0.35);
   animation: hoja-gira 0.4s var(--ease-out-quint) both;
   position: relative;

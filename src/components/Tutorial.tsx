@@ -128,26 +128,26 @@ export function Tutorial({ onCerrar }: { onCerrar: () => void }) {
   return (
     <div className="tuto-fondo" role="dialog" aria-modal="true" aria-label="Tutorial de la Comunidad">
       <div className="tuto-hoja" key={i}>
-        <span className="tuto-emoji" aria-hidden>{paso.emoji}</span>
-        <h2 className="display" style={{ fontSize: 30, textAlign: "center", margin: "12px 0 8px", color: "var(--color-birome)" }}>
+        <span className="tuto-emoji" style={{ fontSize: 46 }} aria-hidden>{paso.emoji}</span>
+        <h2 className="display" style={{ fontSize: 26, textAlign: "center", margin: "10px 0 6px", color: "var(--color-birome)" }}>
           {paso.titulo}
         </h2>
-        <p style={{ fontSize: 16.5, lineHeight: 1.5, textAlign: "center", margin: 0, color: "var(--color-ink)" }}>
+        <p style={{ fontSize: 16, lineHeight: 1.45, textAlign: "center", margin: 0, color: "var(--color-ink)" }}>
           {paso.texto}
         </p>
         {paso.extra}
-        <div className="tuto-dots" aria-hidden>
+        <div className="tuto-dots" style={{ marginTop: 14 }} aria-hidden>
           {pasos.map((_, j) => <span key={j} className={`tuto-dot ${j === i ? "activo" : ""}`} />)}
         </div>
         <button
           className="btn btn-primario"
-          style={{ width: "100%", marginTop: 16, minHeight: 54 }}
+          style={{ width: "100%", marginTop: 13, minHeight: 52 }}
           onClick={() => (ultimo ? cerrar() : setI(i + 1))}
         >
           {ultimo ? "¡A vender! 🏍️" : "Siguiente →"}
         </button>
         {!ultimo && (
-          <button className="btn btn-fantasma" style={{ width: "100%", minHeight: 42, fontSize: 15, color: "var(--color-ink-soft)" }} onClick={cerrar}>
+          <button className="btn btn-fantasma" style={{ width: "100%", minHeight: 40, fontSize: 15, color: "var(--color-ink-soft)" }} onClick={cerrar}>
             Saltar por ahora
           </button>
         )}
