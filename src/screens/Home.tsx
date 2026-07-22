@@ -24,9 +24,10 @@ export default function Home() {
 
   const cargar = async () => {
     if (!profile) return;
-    // Aviso pendiente más reciente sin acuse
+    // Aviso pendiente más reciente sin acuse (generales + los dirigidos a mí)
     const { data: anns } = await supabase.from("announcements")
       .select("id, title, body, created_at").eq("active", true)
+      .or(`audience_user.is.null,audience_user.eq.${profile.id}`)
       .order("created_at", { ascending: false }).limit(10);
     const { data: acks } = await supabase.from("announcement_acks")
       .select("announcement_id").eq("user_id", profile.id);

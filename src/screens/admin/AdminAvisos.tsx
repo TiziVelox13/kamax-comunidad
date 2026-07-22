@@ -5,7 +5,7 @@ import { useAuth } from "../../lib/auth";
 import { Sheet, useToast } from "../../components/ui";
 import { fechaCorta, waLink } from "../../lib/format";
 
-type Aviso = { id: string; title: string; body: string | null; active: boolean; created_at: string };
+type Aviso = { id: string; title: string; body: string | null; active: boolean; created_at: string; audience_user: string | null };
 type Perfil = { id: string; first_name: string; phone: string; role: string; active: boolean };
 
 export default function AdminAvisos() {
@@ -77,13 +77,17 @@ export default function AdminAvisos() {
 
       <h2 className="titulo-seccion" style={{ marginTop: 22 }}>Publicados</h2>
       {avisos.map((a) => {
-        const vistos = acks[a.id]?.size ?? 0;
+        const destinatarios = a.audience_user
+          ? vendedores.filter((p) => p.id === a.audience_user)
+          : vendedores;
+        const vistos = destinatarios.filter((p) => acks[a.id]?.has(p.id)).length;
+        const personal = a.audience_user ? (perfiles.find((p) => p.id === a.audience_user)?.first_name ?? "una persona") : null;
         return (
           <button key={a.id} className="indice-row" style={{ minHeight: 62 }} onClick={() => setDetalle(a)}>
             <span>
-              <div style={{ fontWeight: 700 }}>{a.title}</div>
-              <div style={{ fontSize: 14.5, color: vistos >= vendedores.length ? "var(--color-ok)" : "var(--color-ink-soft)", fontWeight: 600 }}>
-                {fechaCorta(a.created_at)} · ✓ {vistos}/{vendedores.length} confirmaron
+              <div style={{ fontWeight: 700 }}>{a.title} {personal && <span style={{ fontWeight: 500, fontSize: 14, color: "var(--color-birome)" }}>· personal para {personal}</span>}</div>
+              <div style={{ fontSize: 14.5, color: vistos >= destinatarios.length ? "var(--color-ok)" : "var(--color-ink-soft)", fontWeight: 600 }}>
+                {fechaCorta(a.created_at)} · ✓ {vistos}/{destinatarios.length} confirmaron
               </div>
             </span>
             <span className="indice-flecha">→</span>
@@ -112,8 +116,9 @@ export default function AdminAvisos() {
       <Sheet open={!!detalle} onClose={() => setDetalle(null)}>
         {detalle && (() => {
           const set = acks[detalle.id] ?? new Set<string>();
-          const confirmaron = vendedores.filter((p) => set.has(p.id));
-          const faltan = vendedores.filter((p) => !set.has(p.id));
+          const alcance = detalle.audience_user ? vendedores.filter((p) => p.id === detalle.audience_user) : vendedores;
+          const confirmaron = alcance.filter((p) => set.has(p.id));
+          const faltan = alcance.filter((p) => !set.has(p.id));
           const msgWA = (p: Perfil) =>
             `Hola ${p.first_name}! 👋 Te dejé un aviso importante en la Comunidad KAMAX: "${detalle.title}". Entrá y tocá "Entendido ✓" así sé que lo viste 🙏`;
           return (

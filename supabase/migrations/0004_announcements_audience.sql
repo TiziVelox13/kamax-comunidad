@@ -1,0 +1,1 @@
+-- Avisos dirigidos: audience_user null = para todos; con valor = solo esa persona lo ve\nalter table public.announcements add column if not exists audience_user uuid references public.profiles(id);\ncreate index if not exists ann_audience_idx on public.announcements (audience_user) where audience_user is not null;\n
