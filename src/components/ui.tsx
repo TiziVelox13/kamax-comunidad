@@ -50,10 +50,12 @@ export function Sheet({ open, onClose, children }: { open: boolean; onClose: () 
   return (
     <div
       onClick={onClose}
+      className="sheet-fondo"
       style={{ position: "fixed", inset: 0, background: "oklch(17.8% 0.032 260 / 0.5)", zIndex: 55, display: "flex", alignItems: "flex-end" }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        className="sheet-panel"
         style={{
           background: "var(--color-paper)", width: "100%", maxWidth: 560, margin: "0 auto",
           borderRadius: "16px 16px 0 0", padding: "10px 18px calc(18px + env(safe-area-inset-bottom))",

@@ -4,6 +4,8 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/auth";
 import { hoyLargo, calcRacha } from "../lib/format";
 import { useToast } from "../components/ui";
+import { Tutorial, TUTORIAL_KEY } from "../components/Tutorial";
+import { PushBanner } from "../components/PushBanner";
 
 type Aviso = { id: string; title: string; body: string | null; created_at: string };
 
@@ -14,6 +16,11 @@ export default function Home() {
   const [aviso, setAviso] = useState<Aviso | null>(null);
   const [stats, setStats] = useState({ placas: 0, racha: 0, clientes: 0 });
   const [chatSinLeer, setChatSinLeer] = useState(0);
+  const [tutorial, setTutorial] = useState(false);
+
+  useEffect(() => {
+    if (profile && !localStorage.getItem(TUTORIAL_KEY)) setTutorial(true);
+  }, [profile?.id]);
 
   const cargar = async () => {
     if (!profile) return;
@@ -56,8 +63,15 @@ export default function Home() {
     <div className="pantalla">
       <header className="encabezado">
         <img src="/img/logo-kamax.png" alt="KAMAX" style={{ height: 22 }} />
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {isStaff && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            className="btn btn-fantasma"
+            style={{ minHeight: 42, minWidth: 42, padding: 0, fontSize: 19, border: "2px solid var(--color-line)", borderRadius: "50%" }}
+            onClick={() => setTutorial(true)}
+            aria-label="Ver el tutorial de nuevo"
+            title="¿Cómo funciona?"
+          >?</button>
+          {(isStaff || profile.role === "creador") && (
             <button className="btn btn-borde" style={{ minHeight: 42, fontSize: 15, padding: "0 14px" }} onClick={() => nav("/equipo")}>
               Equipo 🛠️
             </button>
@@ -65,6 +79,8 @@ export default function Home() {
           <span className="avatar">{profile.first_name.slice(0, 2).toUpperCase()}</span>
         </div>
       </header>
+
+      <PushBanner />
 
       <h1 className="display" style={{ fontSize: 40, margin: "4px 0 0" }}>Hola, {profile.first_name}</h1>
       <p style={{ color: "var(--color-ink-soft)", margin: "2px 0 16px", fontSize: 17 }}>{hoyLargo()}</p>
@@ -126,6 +142,8 @@ export default function Home() {
           <div style={{ fontSize: 15.5, color: "var(--color-ink-soft)" }}>La moto que estamos vendiendo. Ficha completa en la Guía.</div>
         </div>
       </div>
+
+      {tutorial && <Tutorial onCerrar={() => setTutorial(false)} />}
     </div>
   );
 }

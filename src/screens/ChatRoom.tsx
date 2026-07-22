@@ -94,7 +94,7 @@ export default function ChatRoom() {
   if (!profile) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", maxWidth: 560, margin: "0 auto" }}>
+    <div className="pantalla-chat" style={{ display: "flex", flexDirection: "column", height: "100dvh", maxWidth: 560, margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: "1px solid var(--color-line)", background: "var(--color-paper)" }}>
         <button className="btn btn-fantasma" style={{ minHeight: 40, padding: "0 6px", fontSize: 24 }} onClick={() => nav("/chat")} aria-label="Volver">←</button>
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{titulo}</h1>
