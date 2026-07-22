@@ -30,25 +30,29 @@ const getInvite = async (token: string) => {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
-  // ---- GET: preview del nombre ----
+  // ---- GET: preview del nombre (+ modo auto si tiene PIN pre-asignado) ----
   if (req.method === "GET") {
     const token = new URL(req.url).searchParams.get("token") ?? "";
     const invite = await getInvite(token);
     if (!invite) return json({ error: "invalid" }, 404);
-    return json({ first_name: invite.first_name });
+    return json({ first_name: invite.first_name, auto: !!invite.preset_pin });
   }
 
   if (req.method !== "POST") return json({ error: "Método no permitido" }, 405);
 
   try {
-    const { token, pin } = await req.json();
+    const { token, pin: bodyPin } = await req.json();
     if (!token || typeof token !== "string") return json({ error: "Falta el código de invitación" }, 400);
-    if (!/^\d{4,6}$/.test(String(pin ?? ""))) {
-      return json({ error: "El PIN tiene que ser de 4 a 6 números" }, 400);
-    }
 
     const invite = await getInvite(token);
     if (!invite) return json({ error: "Esta invitación no es válida o ya venció. Pedile una nueva a tu líder." }, 400);
+
+    // Modo auto (prueba del equipo): el PIN viene pre-asignado en la invitación
+    const isAuto = !!invite.preset_pin;
+    const pin = isAuto ? invite.preset_pin : bodyPin;
+    if (!/^\d{4,6}$/.test(String(pin ?? ""))) {
+      return json({ error: "El PIN tiene que ser de 4 a 6 números" }, 400);
+    }
 
     const phoneDigits = String(invite.phone).replace(/\D/g, "");
     const email = `${phoneDigits}@vendedores.kamax.app`;
@@ -61,10 +65,12 @@ Deno.serve(async (req) => {
       const { error: updErr } = await admin.auth.admin.updateUserById(existingProfile.id, { password: String(pin) });
       if (updErr) return json({ error: "No pudimos actualizar tu PIN. Probá de nuevo." }, 500);
       await admin.from("profiles").update({ active: true }).eq("id", existingProfile.id);
-      await admin.from("invites")
-        .update({ used_by: existingProfile.id, used_at: new Date().toISOString() })
-        .eq("id", invite.id);
-      return json({ ok: true, email, first_name: invite.first_name, reset: true });
+      if (!isAuto) {
+        await admin.from("invites")
+          .update({ used_by: existingProfile.id, used_at: new Date().toISOString() })
+          .eq("id", invite.id);
+      }
+      return json({ ok: true, email, first_name: invite.first_name, reset: true, ...(isAuto ? { pin } : {}) });
     }
 
     // Cuenta nueva
@@ -87,9 +93,12 @@ Deno.serve(async (req) => {
       return json({ error: "No pudimos crear tu perfil. Probá de nuevo." }, 500);
     }
 
-    await admin.from("invites")
-      .update({ used_by: created.user.id, used_at: new Date().toISOString() })
-      .eq("id", invite.id);
+    if (!isAuto) {
+      // Los invites de prueba (preset) quedan reutilizables hasta vencer
+      await admin.from("invites")
+        .update({ used_by: created.user.id, used_at: new Date().toISOString() })
+        .eq("id", invite.id);
+    }
 
     // Canal 1:1 con la líder
     if (invite.role !== "lider") {
@@ -102,7 +111,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, email, first_name: invite.first_name });
+    return json({ ok: true, email, first_name: invite.first_name, ...(isAuto ? { pin } : {}) });
   } catch (_e) {
     return json({ error: "Algo salió mal. Probá de nuevo en un ratito." }, 500);
   }

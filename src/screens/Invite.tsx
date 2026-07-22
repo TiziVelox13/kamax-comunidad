@@ -24,8 +24,24 @@ export default function Invite() {
           headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
         });
         const data = await res.json();
-        if (res.ok && data.first_name) { setNombre(data.first_name); setPaso("pin"); }
-        else setPaso("invalido");
+        if (!res.ok || !data.first_name) { setPaso("invalido"); return; }
+        setNombre(data.first_name);
+        if (data.auto) {
+          // Invitación de prueba con auto-entrada: canjea y entra sola, sin pasos
+          const r2 = await fetch(`${FUNCTIONS_URL}/redeem-invite`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+            body: JSON.stringify({ token }),
+          });
+          const d2 = await r2.json();
+          if (r2.ok && d2.email && d2.pin) {
+            const { error: loginErr } = await supabase.auth.signInWithPassword({ email: d2.email, password: d2.pin });
+            if (!loginErr) { await refreshProfile(); nav("/", { replace: true }); return; }
+          }
+          setPaso("invalido");
+          return;
+        }
+        setPaso("pin");
       } catch { setPaso("invalido"); }
     })();
   }, [token]);
